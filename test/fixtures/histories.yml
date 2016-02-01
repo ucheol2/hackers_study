@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  studee_id: 1
+  absence: 1
+  late: 1
+  homework: 1
+  voca: 1
+
+two:
+  studee_id: 1
+  absence: 1
+  late: 1
+  homework: 1
+  voca: 1

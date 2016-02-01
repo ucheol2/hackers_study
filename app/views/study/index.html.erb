@@ -1,0 +1,134 @@
+<div class="row">
+  <div class="col s12">
+    <div class="center">
+      <h1>스터디 벌금 내역!</h1>
+    </div>
+    <%= form_tag "/study/fine_proc", class: "row", id: "fine_form" do %>
+      <h3>벌금 추가</h3>
+      <div class="input-field col s12 l4">
+        <select name="studee">
+          <option value="" disabled selected>선택</option>
+          <% @studees.each do |item| %>
+            <option value="<%= item.id %>"><%= item.name %></option>
+          <% end %>
+        </select>
+        <label>이름</label>
+      </div>
+      <div class="input-field col s6 l2">
+        <input id="absence" name="absence" type="number" value="0" required>
+        <label for="absence">결석</label>
+      </div>
+      <div class="input-field col s6 l2">
+        <input id="late" name="late" type="number" value="0" required>
+        <label for="late">지각</label>
+      </div>
+      <div class="input-field col s6 l2">
+        <input id="homework" name="homework" type="number" value="0" required>
+        <label for="homework">숙제</label>
+      </div>
+      <div class="input-field col s6 l2">
+        <input id="voca" name="voca" type="number" value="0" required>
+        <label for="voca">단어</label>
+      </div>
+      <div class="input-field col s12">
+        <button type="submit" class="btn right">입력</button>
+      </div>
+    <% end %>
+    <div class="row">
+      <div class="col s12">
+        <h3>Deposit 현황</h3>
+        <ul class="collapsible" data-collapsible="expandable">
+          <% @studees.each do |item| %>
+            <li>
+              <div class="collapsible-header"><%= item.name %>  |  <span id="deposit<%= item.id %>" class="green-text"><%= number_with_delimiter(item.deposit, delimiter: ',') %></span></div>
+              <div class="collapsible-body">
+                <table class="striped">
+                  <thead>
+                    <tr>
+                      <th data-field="absence">날짜</th>
+                      <th data-field="absence">결석</th>
+                      <th data-field="late">지각</th>
+                      <th data-field="homework">숙제</th>
+                      <th data-field="voca">단어</th>
+                      <th class="red-text" data-field="fine">벌금</th>
+                      <th data-field="fine"><a class="black-text" href="">취소</a></th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbody<%= item.id %>">
+                    <% item.histories.each do |hs| %>
+                      <tr>
+                        <td><%= hs.created_at.in_time_zone("Seoul").strftime("%Y-%m-%d %a") %></td>
+                        <td><%= hs.absence %></td>
+                        <td><%= hs.late %></td>
+                        <td><%= hs.homework %></td>
+                        <td><%= hs.voca %></td>
+                        <td class="red-text"><%= hs.get_fine %></td>
+                        <td><a data-history="<%= hs.id %>" class="black-text cancle_btn modal-trigger" href="#password">X</a></td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="password" class="modal">
+  <div class="modal-content">
+    <%= form_tag "/study/cancle_history" do %>
+      <label for="password">비밀번호</label>
+      <input type="hidden" name="history_id">
+      <input id="password" type="password" name="password"><br>
+      <button class="btn" type="submit">입력</button>
+    <% end %>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class=" modal-action modal-close btn-flat">취소</a>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+  $('select').material_select();
+  $('.modal-trigger').leanModal();
+  
+  $("#fine_form").submit(function(e){
+    e.preventDefault();
+    $.ajax({
+      url: "/study/fine_proc",
+      dataType: "json",
+      data: {
+        studee: $(':input[name="studee"]').val(),
+        absence: $(':input[name="absence"]').val(),
+        late: $(':input[name="late"]').val(),
+        homework: $(':input[name="homework"]').val(),
+        voca: $(':input[name="voca"]').val()
+      },
+      success: function(data){
+        $('#deposit'+data.id).text(data.deposit);
+        $('#tbody'+data.id).append(
+          '<tr>'+
+            '<td>'+data.his.absence+'</td>'+
+            '<td>'+data.his.late+'</td>'+
+            '<td>'+data.his.homework+'</td>'+
+            '<td>'+data.his.voca+'</td>'+
+            '<td class="blue-text"><a href="#">'+data.fine+'</a></td>'+
+            '<td>X</td>'+
+          '</tr>'
+        );
+      },
+      error: function(){
+        alert('error occured');
+      }
+    })
+  });
+  
+  $('.cancle_btn').click(function(){
+    $(':input[name="history_id"]').val($(this).data('history'))
+  });
+});
+</script>
