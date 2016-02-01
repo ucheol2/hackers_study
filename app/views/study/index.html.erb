@@ -40,7 +40,7 @@
         <ul class="collapsible" data-collapsible="expandable">
           <% @studees.each do |item| %>
             <li>
-              <div class="collapsible-header"><%= item.name %>  |  <span id="deposit<%= item.id %>" class="green-text"><%= number_with_delimiter(item.deposit, delimiter: ',') %></span></div>
+              <div class="collapsible-header"><%= item.name %>  |  <span id="deposit<%= item.id %>" class="green-text"><%= item.deposit %></span></div>
               <div class="collapsible-body">
                 <table class="striped">
                   <thead>
@@ -51,7 +51,7 @@
                       <th data-field="homework">숙제</th>
                       <th data-field="voca">단어</th>
                       <th class="red-text" data-field="fine">벌금</th>
-                      <th data-field="fine"><a class="black-text" href="">취소</a></th>
+                      <th data-field="fine" class="black-text">취소</th>
                     </tr>
                   </thead>
                   <tbody id="tbody<%= item.id %>">
@@ -112,14 +112,16 @@ $(document).ready(function() {
         $('#deposit'+data.id).text(data.deposit);
         $('#tbody'+data.id).append(
           '<tr>'+
+            '<td>'+data.date+'</td>'+
             '<td>'+data.his.absence+'</td>'+
             '<td>'+data.his.late+'</td>'+
             '<td>'+data.his.homework+'</td>'+
             '<td>'+data.his.voca+'</td>'+
-            '<td class="blue-text"><a href="#">'+data.fine+'</a></td>'+
-            '<td>X</td>'+
+            '<td class="red-text"><a href="#">'+data.fine+'</a></td>'+
+            '<td><a data-history="'+data.his.id+'" class="black-text cancle_btn modal-trigger" href="#password">X</a></td>'+
           '</tr>'
         );
+        $('.modal-trigger').leanModal();
       },
       error: function(){
         alert('error occured');
@@ -127,8 +129,8 @@ $(document).ready(function() {
     })
   });
   
-  $('.cancle_btn').click(function(){
-    $(':input[name="history_id"]').val($(this).data('history'))
+  $(document).on('click', '.cancle_btn', function(){
+    $(':input[name="history_id"]').val($(this).data('history'));
   });
 });
 </script>
